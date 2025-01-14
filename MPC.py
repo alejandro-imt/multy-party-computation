@@ -4,6 +4,7 @@ import random
 import numpy as np # To check the dot product
 import math
 import time
+from utils import signed_integer
 
 # Decorator to measure execution time
 def measure_time(func):
@@ -127,15 +128,18 @@ class MPC_Shares:
 
 # Class to handle the Global MPC operations
 class MPC:
-    def __init__(self, k: int=10, order: int=None) -> MPC:
+    def __init__(self, k: int=16, order: int=None) -> MPC:
         if order is not None:
-            assert math.log2(order).is_integer(), "Exception: The order must be a power of 2." 
+            k = math.log2(order)
+            assert k.is_integer(), "Exception: The order must be a power of 2." 
             self.order = order
+            self.k = k
         else: 
             self.order = 2**k
+            self.k = k
 
     def SplitSecret(self, secret: int) -> tuple[MPC_Shares, MPC_Shares, MPC_Shares]:
-        # Split the secret into 3 shares
+        # Split the secret into 2 shares
         share1 = random.randint(1, self.order)
         share2 = random.randint(1, self.order)
         share3 = (secret - share1 - share2) % self.order
@@ -154,11 +158,11 @@ class MPC:
 
     # Reconstruction of the secret. Only 2 parties are needed to reconstruct the secret
     def ReconstructSecret(self, shares_obj_A: MPC_Shares, shares_obj_B: MPC_Shares) -> int:
-        
+
         sharesA = shares_obj_A.shares
         sharesB = shares_obj_B.shares
         secret = 0
-        
+
         for s in range(3):
             if sharesA[s] == inf:
                 secret += sharesB[s]
@@ -166,26 +170,26 @@ class MPC:
                 secret += sharesA[s]
             else:
                 secret += sharesA[s]
-        
+
         return secret % self.order
 
     # Split a vector of secrets
     def SplitVectorSecret(self, vector: list) -> tuple[MPC_Shares, MPC_Shares, MPC_Shares]:
-        
+
         temp_shares_vector_p1 = []
         temp_shares_vector_p2 = []
         temp_shares_vector_p3 = []
-        
+
         for i in range(len(vector)):
             shares = self.SplitSecret(vector[i])
             temp_shares_vector_p1.append(shares[0])
             temp_shares_vector_p2.append(shares[1])
             temp_shares_vector_p3.append(shares[2])
-        
+
         shares_vector_p1 = MPC_Shares(temp_shares_vector_p1, self.order)
         shares_vector_p2 = MPC_Shares(temp_shares_vector_p2, self.order)
         shares_vector_p3 = MPC_Shares(temp_shares_vector_p3, self.order)
-        
+
         return shares_vector_p1, shares_vector_p2, shares_vector_p3
 
     # Reconstruct a vector of secrets
@@ -198,17 +202,17 @@ class MPC:
 
     # Resharing the product of two secrets
     def Resharing(self, share1: int, share2: int, share3: int) -> tuple[MPC_Shares, MPC_Shares, MPC_Shares]:
-        
+
         # Distribute the shares among the parties
         shares_p1 = [share1, inf, share3]
         shares_p2 = [share1, share2, inf]
         shares_p3 = [inf, share2, share3]
-        
+
         # Cast the shares to MPC_Shares object
         shares_obj_p1 = MPC_Shares(shares_p1, self.order)
         shares_obj_p2 = MPC_Shares(shares_p2, self.order)
         shares_obj_p3 = MPC_Shares(shares_p3, self.order)
-        
+
         return shares_obj_p1, shares_obj_p2, shares_obj_p3
 ##########################################################################################
 
