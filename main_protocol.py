@@ -1,5 +1,4 @@
 import numpy as np
-import random
 from MPC import MPC
 from utils import signed_integer, mask_bits
 
