@@ -17,7 +17,7 @@ def measure_time(func):
     return wrapper
 
 # Parameters
-vector_length = 5
+vector_length = 10
 
 # Use the infinity
 inf = float("inf")
@@ -215,6 +215,8 @@ class MPC:
 
         return shares_obj_p1, shares_obj_p2, shares_obj_p3
 ##########################################################################################
+##########################################################################################
+##########################################################################################
 
 def simple_test():
     # Instantiate the MPC class
@@ -308,7 +310,7 @@ def simple_test():
 def test_mpc(num_tests):
     # Instantiate the MPC class
     mpc = MPC(k=15)
-    
+    # For coung the number of errors
     num_errors = 0
     for _ in range(num_tests):
         vector_x = [random.randint(1, 100) for i in range(vector_length)]
@@ -331,57 +333,6 @@ def test_mpc(num_tests):
             num_errors += 1
 
     print("\nNumber of errors: ", num_errors, " out of ", num_tests)
-
-# Test the MPC - DELETE THIS FUNCTION
-def test_mpc():
-    mpc = MPC(k=15)
-
-    x = random.randint(1, 100)
-    y = random.randint(1, 100)
-
-    shares_x_p1, shares_x_p2, shares_x_p3 = mpc.SplitSecret(x)
-    shares_y_p1, shares_y_p2, shares_y_p3 = mpc.SplitSecret(y)
-
-    secret_x = mpc.ReconstructSecret(shares_x_p1, shares_x_p2)
-    secret_y = mpc.ReconstructSecret(shares_y_p2, shares_y_p3)
-
-    shares_add_p1 = shares_x_p1.LocalAddition(shares_y_p1)
-    shares_add_p2 = shares_x_p2.LocalAddition(shares_y_p2)
-    shares_add_p3 = shares_x_p3.LocalAddition(shares_y_p3)
-
-    secret_add = mpc.ReconstructSecret(shares_add_p1, shares_add_p2)
-
-    share_prod_p1 = shares_x_p1.LocalMultiplication(shares_y_p1)
-    share_prod_p2 = shares_x_p2.LocalMultiplication(shares_y_p2)
-    share_prod_p3 = shares_x_p3.LocalMultiplication(shares_y_p3)
-
-    shares_prod_p1, shares_prod_p2, shares_prod_p3 = mpc.Resharing(share_prod_p1, share_prod_p2, share_prod_p3)
-
-    secret_prod = mpc.ReconstructSecret(shares_prod_p1, shares_prod_p2)
-
-    vector_x = [random.randint(1, 100) for i in range(vector_length)]
-    vector_y = [random.randint(1, 100) for i in range(vector_length)]
-
-    shares_vector_x_p1, shares_vector_x_p2, shares_vector_x_p3 = mpc.SplitVectorSecret(vector_x)
-    shares_vector_y_p1, shares_vector_y_p2, shares_vector_y_p3 = mpc.SplitVectorSecret(vector_y)
-
-    recovered_vector_x = mpc.ReconstructVectorSecret(shares_vector_x_p1, shares_vector_x_p2)
-    recovered_vector_y = mpc.ReconstructVectorSecret(shares_vector_y_p2, shares_vector_y_p3)
-
-    share_dot_product_1 = shares_vector_x_p1.LocalDotProduct(shares_vector_y_p1)
-    share_dot_product_2 = shares_vector_x_p2.LocalDotProduct(shares_vector_y_p2)
-    share_dot_product_3 = shares_vector_x_p3.LocalDotProduct(shares_vector_y_p3)
-    
-    shares_dot_product_p1, shares_dot_product_p2, shares_dot_product_p3 \
-        = mpc.Resharing(share_dot_product_1, share_dot_product_2, share_dot_product_3)
-    
-    dot_product = mpc.ReconstructSecret(shares_dot_product_p1, shares_dot_product_p3)
-    
-    print("Secrets to be shared: x = ", x, " y = ", y)
-    print("\nShares of party 1 for x: ", shares_x_p1.shares)
-    print("Shares of party 2 for x: ", shares_x_p2.shares)
-    print("Shares of party 3 for x: ", shares_x_p3.shares)
-    print("\nRecovered secret x: ", secret_x, "... Expected: ", x)
 
 if "__name__" == "__main__":
     # Simple test

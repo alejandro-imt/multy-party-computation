@@ -90,7 +90,5 @@ for _ in range(num_tests):
     comparision_reference = (1-2*match_ratio)*mask_ones
     
     if dp > comparision_reference:
-        # if dot_product < mask_ones:
         num_matches += 1
-        # break
 print("\nNumber of matches ", num_matches)
